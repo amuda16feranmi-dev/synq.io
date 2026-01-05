@@ -74,6 +74,19 @@
 
   const auth = firebase.auth();
   const db = firebase.firestore();
+  function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      if(username === "" || password === "") {
+        alert("Please enter username and password");
+        return;
+      }
+
+      // For demo, just go to contacts page
+      window.location.href = "contacts.html";
+    }
+  </script>
 </script>
 </body>
 </html>
