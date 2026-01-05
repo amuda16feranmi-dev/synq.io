@@ -1,0 +1,2 @@
+# synq.io
+Chat app
