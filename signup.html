@@ -51,7 +51,7 @@
     <h2>Signup</h2>
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
-    <input type="text" id="phone" placeholder="Phone Number">
+    <input type="text" id="email" placeholder="Email Address">
     <button onclick="signup()">Create Account</button>
     <a href="login.html">Already have account? Login</a>
   </div>
@@ -78,9 +78,9 @@
   function signup() {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('email').value;
 
-      if(username === "" || password === "" || phone === "") {
+      if(username === "" || password === "" || email === "") {
         alert("Please fill all fields");
         return;
       }
