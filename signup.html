@@ -56,20 +56,25 @@
     <a href="login.html">Already have account? Login</a>
   </div>
 
-  <script>
-    function signup() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const phone = document.getElementById('phone').value;
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-      if(username === "" || password === "" || phone === "") {
-        alert("Please fill all fields");
-        return;
-      }
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSo3we0rPWhMSgDz-gghQUcv5DxaM7cCs",
+    authDomain: "synq-1a6fe.firebaseapp.com",
+    projectId: "synq-1a6fe",
+    storageBucket: "synq-1a6fe.firebasestorage.app",
+    messagingSenderId: "991435331026",
+    appId: "1:991435331026:web:94022c39f22a4f7ee9240b",
+    measurementId: "G-9K8DXS4HS1"
+  };
 
-      alert("Account created successfully!");
-      window.location.href = "login.html";
-    }
-  </script>
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
 </body>
 </html>
