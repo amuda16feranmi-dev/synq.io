@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat - Mini WhatsApp</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #ece5dd;
+      display: flex;
+      justify-content: center;
+      padding-top: 20px;
+    }
+    .chat-container {
+      width: 400px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+    .chat-header {
+      background-color: #075e54;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #dcf8c6;
+    }
+    .message {
+      padding: 8px;
+      border-radius: 10px;
+      margin: 5px 0;
+      max-width: 70%;
+    }
+    .sent {
+      background-color: #34b7f1;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+    .received {
+      background-color: #ffffff;
+      text-align: left;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      padding: 10px 20px;
+      background-color: #075e54;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .chat-input button:hover {
+      background-color: #128c7e;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header" id="chatHeader">Chat</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const chatHeader = document.getElementById('chatHeader');
+
+    const contact = localStorage.getItem("chatWith");
+    chatHeader.innerText = contact;
+
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if(text === "") return;
+
+      const msg = document.createElement('div');
+      msg.classList.add('message','sent');
+      msg.innerText = text;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      messageInput.value = "";
+
+      // Simulate reply
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.classList.add('message','received');
+        reply.innerText = "Reply from " + contact;
+        chatMessages.appendChild(reply);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 1000);
+    }
+
+    messageInput.addEventListener("keypress", function(e){
+      if(e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>

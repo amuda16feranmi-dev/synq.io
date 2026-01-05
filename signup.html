@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup - Mini WhatsApp</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ece5dd;
+    }
+    .signup-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #075e54;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #128c7e;
+    }
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #075e54;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-box">
+    <h2>Signup</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <input type="text" id="phone" placeholder="Phone Number">
+    <button onclick="signup()">Create Account</button>
+    <a href="login.html">Already have account? Login</a>
+  </div>
+
+  <script>
+    function signup() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const phone = document.getElementById('phone').value;
+
+      if(username === "" || password === "" || phone === "") {
+        alert("Please fill all fields");
+        return;
+      }
+
+      alert("Account created successfully!");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

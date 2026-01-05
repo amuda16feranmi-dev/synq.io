@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contacts - Mini WhatsApp</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #ece5dd;
+      display: flex;
+      justify-content: center;
+      padding-top: 50px;
+    }
+    .contacts-container {
+      width: 400px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    h2 {
+      background-color: #075e54;
+      color: white;
+      margin: 0;
+      padding: 15px;
+      text-align: center;
+    }
+    .contact {
+      padding: 15px;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .contact:hover {
+      background-color: #dcf8c6;
+    }
+  </style>
+</head>
+<body>
+  <div class="contacts-container">
+    <h2>Contacts</h2>
+    <div class="contact" onclick="openChat('Alice')">Alice</div>
+    <div class="contact" onclick="openChat('Bob')">Bob</div>
+    <div class="contact" onclick="openChat('Charlie')">Charlie</div>
+  </div>
+
+  <script>
+    function openChat(name) {
+      localStorage.setItem("chatWith", name);
+      window.location.href = "chat.html";
+    }
+  </script>
+</body>
+</html>
