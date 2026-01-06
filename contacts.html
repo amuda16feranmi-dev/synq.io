@@ -1,52 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Contacts - Mini WhatsApp</title>
-  <style>
-    body {
-      font-family: Arial;
-      background-color: #ece5dd;
-      display: flex;
-      justify-content: center;
-      padding-top: 50px;
-    }
-    .contacts-container {
-      width: 400px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    h2 {
-      background-color: #075e54;
-      color: white;
-      margin: 0;
-      padding: 15px;
-      text-align: center;
-    }
-    .contact {
-      padding: 15px;
-      border-bottom: 1px solid #ccc;
-      cursor: pointer;
-    }
-    .contact:hover {
-      background-color: #dcf8c6;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacts</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ece5dd;
+  }
+
+  .header {
+    background: #075e54;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .contacts {
+    padding: 10px;
+  }
+
+  .contact {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    background: #25d366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-weight: bold;
+  }
+
+  .name {
+    font-size: 16px;
+  }
+
+  .logout {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+</style>
 </head>
 <body>
-  <div class="contacts-container">
-    <h2>Contacts</h2>
-    <div class="contact" onclick="openChat('Alice')">Alice</div>
-    <div class="contact" onclick="openChat('Bob')">Bob</div>
-    <div class="contact" onclick="openChat('Charlie')">Charlie</div>
-  </div>
 
-  <script>
-    function openChat(name) {
-      localStorage.setItem("chatWith", name);
-      window.location.href = "chat.html";
+<div class="header">Contacts</div>
+
+<div class="contacts" id="contactsList">
+  Loading contacts...
+</div>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSo3we0rPWhMSgDz-gghQUcv5DxaM7cCs",
+    authDomain: "synq-1a6fe.firebaseapp.com",
+    projectId: "synq-1a6fe",
+    storageBucket: "synq-1a6fe.firebasestorage.app",
+    messagingSenderId: "991435331026",
+    appId: "1:991435331026:web:94022c39f22a4f7ee9240b",
+    measurementId: "G-9K8DXS4HS1"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Protect page
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    } else {
+      loadContacts(user.uid);
     }
-  </script>
+  });
+
+  function loadContacts(currentUserId) {
+    const list = document.getElementById("contactsList");
+    list.innerHTML = "";
+
+    db.collection("users").get().then(snapshot => {
+      snapshot.forEach(doc => {
+        if (doc.id !== currentUserId) {
+          const user = doc.data();
+
+          const div = document.createElement("div");
+          div.className = "contact";
+          div.innerHTML = `
+            <div class="avatar">${user.username.charAt(0).toUpperCase()}</div>
+            <div class="name">${user.username}</div>
+          `;
+
+          // Click → open chat later
+          div.onclick = () => {
+            alert("Chat with " + user.username + " coming next 👀");
+          };
+
+          list.appendChild(div);
+        }
+      });
+
+      if (list.innerHTML === "") {
+        list.innerHTML = "No contacts yet";
+      }
+    });
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  }
+</script>
+
 </body>
 </html>
