@@ -1,116 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat - Mini WhatsApp</title>
-  <style>
-    body {
-      font-family: Arial;
-      background-color: #ece5dd;
-      display: flex;
-      justify-content: center;
-      padding-top: 20px;
-    }
-    .chat-container {
-      width: 400px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      display: flex;
-      flex-direction: column;
-      height: 500px;
-    }
-    .chat-header {
-      background-color: #075e54;
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background-color: #dcf8c6;
-    }
-    .message {
-      padding: 8px;
-      border-radius: 10px;
-      margin: 5px 0;
-      max-width: 70%;
-    }
-    .sent {
-      background-color: #34b7f1;
-      color: white;
-      margin-left: auto;
-      text-align: right;
-    }
-    .received {
-      background-color: #ffffff;
-      text-align: left;
-    }
-    .chat-input {
-      display: flex;
-      border-top: 1px solid #ccc;
-    }
-    .chat-input input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      outline: none;
-    }
-    .chat-input button {
-      padding: 10px 20px;
-      background-color: #075e54;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .chat-input button:hover {
-      background-color: #128c7e;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Chat</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #ece5dd;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  background: #075e54;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.msg {
+  max-width: 70%;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+}
+
+.me {
+  background: #dcf8c6;
+  align-self: flex-end;
+}
+
+.other {
+  background: white;
+  align-self: flex-start;
+}
+
+.input-box {
+  display: flex;
+  padding: 10px;
+  background: white;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.input-box button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  border: none;
+  background: #25d366;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+</style>
 </head>
+
 <body>
-  <div class="chat-container">
-    <div class="chat-header" id="chatHeader">Chat</div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input">
-      <input type="text" id="messageInput" placeholder="Type a message...">
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
 
-  <script>
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const chatHeader = document.getElementById('chatHeader');
+<div class="header" id="chatHeader">Chat</div>
+<div class="messages" id="messages"></div>
 
-    const contact = localStorage.getItem("chatWith");
-    chatHeader.innerText = contact;
+<div class="input-box">
+  <input type="text" id="messageInput" placeholder="Type a message">
+  <button onclick="sendMessage()">➤</button>
+</div>
 
-    function sendMessage() {
-      const text = messageInput.value.trim();
-      if(text === "") return;
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-      const msg = document.createElement('div');
-      msg.classList.add('message','sent');
-      msg.innerText = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      messageInput.value = "";
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCSo3we0rPWhMSgDz-gghQUcv5DxaM7cCs",
+  authDomain: "synq-1a6fe.firebaseapp.com",
+  projectId: "synq-1a6fe",
+  storageBucket: "synq-1a6fe.firebasestorage.app",
+  messagingSenderId: "991435331026",
+  appId: "1:991435331026:web:94022c39f22a4f7ee9240b"
+};
 
-      // Simulate reply
-      setTimeout(() => {
-        const reply = document.createElement('div');
-        reply.classList.add('message','received');
-        reply.innerText = "Reply from " + contact;
-        chatMessages.appendChild(reply);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }, 1000);
-    }
+firebase.initializeApp(firebaseConfig);
 
-    messageInput.addEventListener("keypress", function(e){
-      if(e.key === "Enter") sendMessage();
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserId = "";
+let otherUserId = "PUT_OTHER_USER_ID_HERE"; // TEMP
+let chatId = "";
+
+/* AUTH CHECK */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    currentUserId = user.uid;
+    createChatId();
+    listenForMessages();
+  }
+});
+
+/* CREATE CHAT ID */
+function createChatId() {
+  chatId = currentUserId < otherUserId
+    ? currentUserId + "_" + otherUserId
+    : otherUserId + "_" + currentUserId;
+}
+
+/* SEND MESSAGE */
+function sendMessage() {
+  const text = document.getElementById("messageInput").value;
+  if (text === "") return;
+
+  db.collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .add({
+      sender: currentUserId,
+      text: text,
+      time: firebase.firestore.FieldValue.serverTimestamp()
     });
-  </script>
+
+  document.getElementById("messageInput").value = "";
+}
+
+/* LISTEN FOR MESSAGES */
+function listenForMessages() {
+  db.collection("chats")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("time")
+    .onSnapshot(snapshot => {
+      const box = document.getElementById("messages");
+      box.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+        const div = document.createElement("div");
+        div.className = "msg " + (msg.sender === currentUserId ? "me" : "other");
+        div.innerText = msg.text;
+        box.appendChild(div);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    });
+}
+</script>
+
 </body>
 </html>
