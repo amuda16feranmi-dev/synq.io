@@ -100,7 +100,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentUserId = "";
-let otherUserId = "PUT_OTHER_USER_ID_HERE"; // TEMP
+let otherUserId = "";
 let chatId = "";
 
 /* AUTH CHECK */
@@ -109,7 +109,15 @@ auth.onAuthStateChanged(user => {
     window.location.href = "login.html";
   } else {
     currentUserId = user.uid;
+    otherUserId = getOtherUserId();
+
+    if (!otherUserId) {
+      window.location.href = "contacts.html";
+      return;
+    }
+
     createChatId();
+    loadUserName();
     listenForMessages();
   }
 });
@@ -119,6 +127,19 @@ function createChatId() {
   chatId = currentUserId < otherUserId
     ? currentUserId + "_" + otherUserId
     : otherUserId + "_" + currentUserId;
+}
+
+function getOtherUserId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("uid");
+}
+
+function loadUserName() {
+  db.collection("users").doc(otherUserId).get().then(doc => {
+    if (doc.exists) {
+      document.getElementById("chatHeader").innerText = doc.data().username;
+    }
+  });
 }
 
 /* SEND MESSAGE */
