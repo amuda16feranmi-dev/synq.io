@@ -3,76 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <title>Contacts</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  font-family: Arial;
-  background: #ece5dd;
   margin: 0;
+  background: #0b141a;
+  color: white;
+  font-family: Arial, sans-serif;
 }
 
 .header {
-  background: #075e54;
-  color: white;
   padding: 15px;
-  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
 }
 
 .search-box {
   padding: 10px;
-  background: #fff;
 }
 
 .search-box input {
   width: 100%;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-.section-title {
-  padding: 10px;
-  font-weight: bold;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background: #1f2c34;
+  color: white;
 }
 
 .contact {
-  background: white;
-  padding: 12px;
-  margin: 8px;
-  border-radius: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.add-btn {
-  background: #25d366;
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 5px;
+  padding: 12px;
   cursor: pointer;
 }
 
-.saved {
-  background: #ddd;
+.contact:hover {
+  background: #1f2c34;
+}
+
+.avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-weight: bold;
+}
+
+.name {
+  font-size: 16px;
+}
+
+.sub {
+  font-size: 13px;
+  color: gray;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">Contacts</div>
+<div class="header">WhatsApp</div>
 
 <div class="search-box">
-  <input type="text" id="searchInput" placeholder="Search username">
+  <input type="text" id="searchInput" placeholder="Search by username or email" onkeyup="searchUser()">
 </div>
 
-<div class="section-title">Search Results</div>
-<div id="searchResults"></div>
-
-<div class="section-title">My Contacts</div>
-<div id="myContacts"></div>
+<div id="contactList"></div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -80,107 +83,90 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyCSo3we0rPWhMSgDz-gghQUcv5DxaM7cCs",
   authDomain: "synq-1a6fe.firebaseapp.com",
-  projectId: "synq-1a6fe",
-  storageBucket: "synq-1a6fe.firebasestorage.app",
-  messagingSenderId: "991435331026",
-  appId: "1:991435331026:web:94022c39f22a4f7ee9240b"
-};
-
-firebase.initializeApp(firebaseConfig);
+  projectId: "synq-1a6fe"
+});
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let currentUserId = "";
+let currentUser = null;
+let allUsers = [];
 
-/* Protect page */
 auth.onAuthStateChanged(user => {
   if (!user) {
     window.location.href = "login.html";
   } else {
-    currentUserId = user.uid;
-    loadMyContacts();
+    currentUser = user;
+    loadUsers();
   }
 });
 
-/* SEARCH USERS */
-document.getElementById("searchInput").addEventListener("keyup", function () {
-  const text = this.value.toLowerCase();
-  const resultBox = document.getElementById("searchResults");
-  resultBox.innerHTML = "";
-
-  if (text === "") return;
-
+/* LOAD ALL USERS */
+function loadUsers() {
   db.collection("users").get().then(snapshot => {
+    allUsers = [];
     snapshot.forEach(doc => {
-      if (doc.id !== currentUserId) {
-        const user = doc.data();
-        if (user.username.toLowerCase().includes(text)) {
-          const div = document.createElement("div");
-          div.className = "contact";
-          div.innerHTML = `
-            <span>${user.username}</span>
-            <button class="add-btn" onclick="addContact('${doc.id}', '${user.username}', '${user.email}')">Add</button>
-          `;
-          resultBox.appendChild(div);
-        }
+      if (doc.id !== currentUser.uid) {
+        allUsers.push({ uid: doc.id, ...doc.data() });
       }
     });
+    renderContacts(allUsers);
   });
-});
+}
 
-/* ADD CONTACT */
-function addContact(uid, username, email) {
-  db.collection("users")
-    .doc(currentUserId)
+/* DISPLAY CONTACTS */
+function renderContacts(users) {
+  const list = document.getElementById("contactList");
+  list.innerHTML = "";
+
+  users.forEach(user => {
+    const div = dcument.createElement("div");SynQ
+    div.className = "contact";
+
+    div.innerHTML = `
+      <div class="avatar">${user.usernme[0].toUpperCase()}</div>
+      <div>
+        <div class="name">${user.username}</div>
+        <div class="sub">Tap to chat</div>
+      </div>
+    `;
+
+    div.onclick = () => {
+      saveContact(user);
+      window.location.href = "chat.html?uid=" + user.uid;
+    };
+
+    list.appendChild(div);
+  });
+}
+
+/* SEARCH USER */
+function searchUser() {
+  const text = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = allUsers.filter(u =>
+    u.username.toLowerCase().includes(text) ||
+    u.email.toLowerCase().includes(text)
+  );
+
+  renderContacts(filtered);
+}
+
+/* SAVE TO MY CONTACTS */
+function saveContact(user) {
+  db.collection("myContacts")
+    .doc(currentUser.uid)
     .collection("contacts")
-    .doc(uid)
+    .doc(user.uid)
     .set({
-      uid: uid,
-      username: username,
-      email: email
-    })
-    .then(() => {
-      alert("Contact added");
-      loadMyContacts();
+      username: user.username,
+      email: user.email,
+      uid: user.uid
     });
 }
-
-/* LOAD SAVED CONTACTS */
-function loadMyContacts() {
-  const box = document.getElementById("myContacts");
-  box.innerHTML = "";
-
-  db.collection("users")
-    .doc(currentUserId)
-    .collection("contacts")
-    .get()
-    .then(snapshot => {
-      if (snapshot.empty) {
-        box.innerHTML = "No saved contacts";
-        return;
-      }
-
-      snapshot.forEach(doc => {
-        const c = doc.data();
-        const div = document.createElement("div");
-        div.className = "contact saved";
-        div.innerHTML = `<span>${c.username}</span>`;
-        box.appendChild(div);
-      });
-    });
-}
-
-/* FOOTER*/
-function logout() {
-  auth.signOut().then(() => {
-    window.location.href = "login.html";
-  });
-}
-</script>
 </script>
 
 </body>
