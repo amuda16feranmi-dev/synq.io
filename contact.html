@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contacts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+    }
+
+    header {
+      padding: 15px;
+      background: #1f1f1f;
+      font-size: 20px;
+    }
+
+    input {
+      width: 95%;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 20px;
+      border: none;
+    }
+
+    .contact {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+    }
+
+    .contact img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    button {
+      margin-left: auto;
+      background: #25d366;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>Contacts</header>
+
+<input id="searchInput" placeholder="Search by email or username" />
+
+<div id="contactsList"></div>
+
+<script type="module" src="contacts.js"></script>
+</body>
+</html>
